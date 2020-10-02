@@ -3,18 +3,18 @@
 //this returns an array of appointments for that day
 
 function getAppointmentsForDay(state, day) {
-  const todaysAppointments = [];
+  const todaysInterviewers = [];
 
   for (const dayInfo of state.days) {
     if (day === dayInfo.name) {
       for (const appID of dayInfo.appointments) {
         if (appID === state.appointments[appID].id) {
-          todaysAppointments.push(state.appointments[appID]);
+          todaysInterviewers.push(state.appointments[appID]);
         }
       }
     }
   }
-  return todaysAppointments;
+  return todaysInterviewers;
 }
 
 function getInterview(state, interview) {
@@ -23,5 +23,20 @@ function getInterview(state, interview) {
   return (interview) ? { "student": interview.student, "interviewer": state.interviewers[interview.interviewer]} : null;
 }
 
-export { getAppointmentsForDay, getInterview }
+function getInterviewersForDay(state, day) {
+  const todaysInterviewers = [];
+
+  for (const dayInfo of state.days) {
+    if (day === dayInfo.name) {
+      for (const intID of dayInfo.interviewers) {
+        if (intID === state.interviewers[intID].id) {
+          todaysInterviewers.push(state.interviewers[intID]);
+        }
+      }
+    }
+  }
+  return todaysInterviewers;
+}
+
+export { getAppointmentsForDay, getInterview, getInterviewersForDay }
 

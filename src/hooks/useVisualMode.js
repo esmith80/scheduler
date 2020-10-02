@@ -19,7 +19,7 @@ function useVisualMode (initialMode) {
     // do we need to return?
     
   }
-
+  
   function back() {
     //set mode to previous item in history
     if (history.length > 1) {
