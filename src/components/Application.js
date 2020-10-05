@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 import DayList from "./DayList";
+import useApplicationData from "../hooks/useApplicationData";
 import Appointment from "components/Appointment";
 import "components/Application.scss";
 import {
@@ -8,76 +9,21 @@ import {
   getInterview,
   getInterviewersForDay,
 } from "../helpers/selectors";
-const axios = require("axios").default;
 
 export default function Application() {
-  function bookInterview(id, interview) {
-    const appointment = {
-      ...state.appointments[id],
-      interview: { ...interview },
-    };
+  // these constants are being pulled out of the object defined by useApplicationData
+    const {
+      state,
+      setDay,
+      bookInterview,
+      cancelInterview
+    } = useApplicationData();
 
-    const appointments = {
-      ...state.appointments,
-      [id]: appointment,
-    };
-
-    return axios.put(`/api/appointments/${id}`, appointment).then(() => {
-      setState({ ...state, appointments });
-    });
-  }
-
-  function cancelInterview(id) {
-    // create an appointment using appointments id to copy but set interview to null
-    const appointment = {
-      ...state.appointments[id],
-      interview: null,
-    };
-
-    const appointments = {
-      ...state.appointments,
-      [id]: appointment,
-    };
-
-    // make request to axios and update appointment with interview = null
-    return axios.delete(`/api/appointments/${id}`, appointment).then(() => {
-      setState({ ...state, appointments });
-    });
-  }
-
-  const setDay = (day) => setState({ ...state, day });
-
-  const [state, setState] = useState({
-    day: "Monday",
-    days: [],
-    // you may put the line below, but will have to remove/comment hardcoded appointments variable
-    appointments: {},
-    interviewers: {},
-  });
-
-  useEffect(() => {
-    Promise.all([
-      axios.get(`/api/days`),
-      axios.get(`/api/appointments`),
-      axios.get(`api/interviewers`),
-    ]).then((all) => {
-      const [days, appointments, interviewers] = all;
-
-      setState((prev) => ({
-        ...prev,
-        days: days.data,
-        appointments: appointments.data,
-        interviewers: interviewers.data,
-      }));
-    });
-  }, []);
-
-  const appointments = getAppointmentsForDay(state, state.day);
   const interviewers = getInterviewersForDay(state, state.day);
 
-  const schedule = appointments.map((appointment) => {
+  const schedule = getAppointmentsForDay(state, state.day).map(
+    appointment => {
     const interview = getInterview(state, appointment.interview);
-
     return (
       <Appointment
         key={appointment.id}
