@@ -13,10 +13,6 @@ The cancelInterview action makes an HTTP request and updates the local state.
 
 export default function useApplicationData() {
   // ----------------- functions -----------------
-  // get day index based on appointment ID
-  function getDayIndex(appID) {
-    return Math.ceil(appID / 5) - 1;
-  }
 
   // INPUTS: id (a number to identify the appointment slot) and interview object
   // OUTPUTS: a promise that resolves if update to database via api was successful
@@ -36,13 +32,12 @@ export default function useApplicationData() {
 
     const days = [...state.days];
     if (createMode) {
-      console.log("createMode ", createMode);
-      // alter the days data to
-      // using the appointment ID get the array index of the day
-      const dayIndex = getDayIndex(id);
+      // use the appointment ID get the index of the day in the days array
+      const dayIndex = Math.ceil(id / 5) - 1;
+      
       const day = {
         ...state.days[dayIndex],
-        spots: state.days[dayIndex].spots - 1,
+        spots: state.days[dayIndex].spots - 1
       };
 
       days.splice(dayIndex, 1, day);
@@ -65,12 +60,12 @@ export default function useApplicationData() {
       [id]: appointment,
     };
 
-    // using the appointment ID get the array index of the day
-    const dayIndex = getDayIndex(id);
+    // use the appointment ID get the index of the day in the days array
+    const dayIndex = Math.ceil(id / 5) - 1;
 
     const day = {
       ...state.days[dayIndex],
-      spots: state.days[dayIndex].spots + 1,
+      spots: state.days[dayIndex].spots + 1
     };
 
     const days = [...state.days];
@@ -103,14 +98,14 @@ export default function useApplicationData() {
     Promise.all([
       axios.get(`/api/days`),
       axios.get(`/api/appointments`),
-      axios.get(`api/interviewers`),
+      axios.get(`/api/interviewers`),
     ]).then((all) => {
       const [days, appointments, interviewers] = all;
       setState((prev) => ({
         ...prev,
         days: days.data,
         appointments: appointments.data,
-        interviewers: interviewers.data,
+        interviewers: interviewers.data
       }));
     });
   }, []);
@@ -119,6 +114,6 @@ export default function useApplicationData() {
     state: state,
     setDay: setDay,
     bookInterview: bookInterview,
-    cancelInterview: cancelInterview,
+    cancelInterview: cancelInterview
   };
 }

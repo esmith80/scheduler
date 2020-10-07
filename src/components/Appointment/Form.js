@@ -4,6 +4,15 @@ import Button from "../../components/Button";
 
 
 const Form = (props) => {
+
+  const validate = () => {
+    if (name === "") {
+      setError("Student name cannot be blank");
+      return;
+    }
+    setError("");
+    props.onSave(name, interviewer, props.createMode);
+  }
   
   const cancel = () => {
     props.onCancel();
@@ -17,6 +26,7 @@ const Form = (props) => {
 
   const [interviewer, setInterviewer] = useState(props.interviewer || null);
   const [name, setName] = useState(props.name || "");
+  const [error, setError] = useState("");
 
   return (
     <main className="appointment__card appointment__card--create">
@@ -27,31 +37,28 @@ const Form = (props) => {
             name="name"
             type="text"
             placeholder="Enter Student Name"
+            required
             value={name}
-            // we need this event here because the new value is 
-            // not predictable, free-form text, unlike the interviewer list
             onChange={(event) => setName(event.target.value)}
-            
-             
-            /*
-          This must be a controlled component
-        */
+            data-testid="student-name-input"
           />
-        </form>
-        <InterviewerList
+          <section className="appointment__validation">{error}</section>
+          <InterviewerList
           interviewers={props.interviewers}
           value={interviewer}
-          // below, setInterviewer is a canned function - a method of the 
-          // InterviewerList component, if you like. We can use it because
-          // unlike the freeform text in input, it is handling a change of
-          // a small list of values (5 interviewers)
           onChange={setInterviewer}
-        />
+          />
+        </form>
       </section>
       <section className="appointment__card-right">
         <section className="appointment__actions">
           <Button danger onClick={reset}>Cancel</Button>
-          <Button confirm onClick={() => props.onSave(name, interviewer, props.createMode)}>Save</Button>
+          <Button 
+            confirm 
+            onClick={validate}
+            >Save
+          </Button>
+             
         </section>
       </section>
     </main>
