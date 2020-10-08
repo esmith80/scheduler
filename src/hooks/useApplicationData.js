@@ -1,45 +1,29 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 const axios = require("axios").default;
 
-/*
-useApplicationData Hook will return an object with four keys.
-
-The state object will maintain the same structure.
-The setDay action can be used to set the current day.
-The bookInterview action makes an HTTP request and updates the local state.
-The cancelInterview action makes an HTTP request and updates the local state.
-
-*/
-
 export default function useApplicationData() {
-  // ----------------- functions -----------------
 
-  // INPUTS: id (a number to identify the appointment slot) and interview object
-  // OUTPUTS: a promise that resolves if update to database via api was successful
-  function bookInterview(id, interview, createMode) {
-    // make a copy of an appointment object with the id that was passed in
-    // overwrite the existing interview data with interview object that was passed in
+  function bookInterview(id, interview) {
     const appointment = {
       ...state.appointments[id],
       interview: { ...interview },
     };
-    // make a copy of the appointments (array/object?) but with the update
-    // overwrite the appointment that was passed in with the newly created appointment
+
     const appointments = {
       ...state.appointments,
       [id]: appointment,
     };
 
     const days = [...state.days];
-    if (createMode) {
-      // use the appointment ID get the index of the day in the days array
+
+    // only run if interview is newly created (i.e. will not contain an interview)
+    if (state.appointments[id].interview === null) {
+      // use the appointment ID get the index in the days array
       const dayIndex = Math.ceil(id / 5) - 1;
-      
       const day = {
         ...state.days[dayIndex],
-        spots: state.days[dayIndex].spots - 1
+        spots: state.days[dayIndex].spots - 1,
       };
-
       days.splice(dayIndex, 1, day);
     }
 
@@ -49,7 +33,6 @@ export default function useApplicationData() {
   }
 
   function cancelInterview(id) {
-    // create an appointment using appointments id to copy but set interview to null
     const appointment = {
       ...state.appointments[id],
       interview: null,
@@ -60,31 +43,28 @@ export default function useApplicationData() {
       [id]: appointment,
     };
 
-    // use the appointment ID get the index of the day in the days array
+    // use the appointment ID get the index in the days array
     const dayIndex = Math.ceil(id / 5) - 1;
 
     const day = {
       ...state.days[dayIndex],
-      spots: state.days[dayIndex].spots + 1
+      spots: state.days[dayIndex].spots + 1,
     };
 
     const days = [...state.days];
     days.splice(dayIndex, 1, day);
 
-    // make request to axios and update appointment with interview = null
     return axios.delete(`/api/appointments/${id}`, appointment).then(() => {
       setState({ ...state, appointments, days });
     });
   }
 
   function setDay(day) {
-    console.log(day);
     setState({
       ...state,
       day,
     });
   }
-
   // ----------------- end of functions -----------------
 
   const [state, setState] = useState({
@@ -105,7 +85,7 @@ export default function useApplicationData() {
         ...prev,
         days: days.data,
         appointments: appointments.data,
-        interviewers: interviewers.data
+        interviewers: interviewers.data,
       }));
     });
   }, []);
@@ -114,6 +94,6 @@ export default function useApplicationData() {
     state: state,
     setDay: setDay,
     bookInterview: bookInterview,
-    cancelInterview: cancelInterview
+    cancelInterview: cancelInterview,
   };
 }
